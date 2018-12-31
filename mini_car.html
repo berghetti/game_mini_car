@@ -69,7 +69,6 @@
 
 		if (inimigo.bico >= canvas.height){ // inimigo passou
 			lado_inimigo = Math.floor(Math.random()*2 + 1);
-			console.log(inimigo.bico);
 		}
 		
 	}
@@ -78,7 +77,6 @@
 		if (lado_inimigo == 1){eixo_x = canvas.width * 0.35;}
 		if (lado_inimigo == 2){eixo_x = canvas.width * 0.65;}
 		var eixo_y = tam_pecas + y;
-		console.log(eixo_y);
 		
 		// parte traseira
 		pintar(cor.carInimigo, eixo_x, eixo_y);
