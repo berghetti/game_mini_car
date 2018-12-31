@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<style type="text/css">
+	*{
+		background: gray;
+	}
+	#canvas{
+		display: flex;
+		margin: auto;
+	}
+</style>
+<body>
+	<canvas width="400" height="800" id="canvas"></canvas>
+<script type="text/javascript">
+	var canvas = document.getElementById("canvas");
+	var ctx = canvas.getContext("2d");
+	document.addEventListener("keydown", escLado);
+	
+	var lado_car = "right";
+	var mycar = {};
+	var inimigo = {};
+	var cor = {
+		pista: "#A9A9A9",
+		grama: "#006400",
+		faixal: "#F0E68C",
+		faixac: "#FFFAFA",
+		mato: "#6B8E23",
+		carInimigo: "#FF0000",
+		mycar: "#0000CD",
+		pneu: "#000000"
+		};
+
+	var velocidade = 10; // taxa de atualização do pixels no jogo, gera movimento
+	var tam_pecas = 10;
+	var quant_pecas =  canvas.height / tam_pecas;
+	var centro_pista = canvas.width / 2;
+	var tam_faixa = 5;
+	const espaco_faixas = 115;
+
+	var lado_inimigo = Math.floor(Math.random()*2 + 1);
+
+	var y = [];
+	var quant_faixas = (canvas.height * 0.01) - 1; // quantidade necessaria (aproximada) de faixas a 
+	for (var x = 0; x < quant_faixas; x++){		   // pintar conforme o tamanho da pista
+		y[x] = espaco_faixas * x;
+	}
+	
+	setInterval(game, 30);
+	function game(){
+
+		pintarPista();
+		pintarFaixasL();
+		 // pintando faixas centrais
+		for (var x = 0; x < quant_faixas; x++){
+			y[x]+=velocidade;
+			pintarFaixaC(y[x]);
+			if (y[x] > quant_pecas*tam_pecas -tam_pecas){y[x] = 0;}
+		}
+		meuCarro(lado_car);
+		carroInimigo(y[0]);
+
+		if (inimigo.bico == mycar.bico && (inimigo.ld == mycar.ld || inimigo.le == mycar.le)){
+			// game over
+			velocidade = 0;
+		}
+
+		if (inimigo.bico >= canvas.height){ // inimigo passou
+			lado_inimigo = Math.floor(Math.random()*2 + 1);
+			console.log(inimigo.bico);
+		}
+		
+	}
+
+	function carroInimigo(y){
+		if (lado_inimigo == 1){eixo_x = canvas.width * 0.35;}
+		if (lado_inimigo == 2){eixo_x = canvas.width * 0.65;}
+		var eixo_y = tam_pecas + y;
+		console.log(eixo_y);
+		
+		// parte traseira
+		pintar(cor.carInimigo, eixo_x, eixo_y);
+		pintar(cor.pneu, eixo_x-tam_pecas, eixo_y);
+		pintar(cor.pneu, eixo_x+tam_pecas, eixo_y);
+		//meio
+		pintar(cor.carInimigo, eixo_x, eixo_y+tam_pecas);
+		// bico
+		pintar(cor.pneu, eixo_x - tam_pecas, eixo_y + tam_pecas * 2);
+		pintar(cor.pneu, eixo_x + tam_pecas, eixo_y + tam_pecas * 2);
+		pintar(cor.carInimigo, eixo_x, eixo_y + tam_pecas * 2);
+		pintar(cor.carInimigo, eixo_x, eixo_y + tam_pecas * 3);
+
+		inimigo.bico = eixo_y + tam_pecas * 3;
+		inimigo.le = eixo_x - tam_pecas;
+		inimigo.ld = eixo_x + tam_pecas;	
+	}
+
+	function meuCarro(pos){
+		if (pos == "right"){eixo_x = canvas.width * 0.65;}
+		if (pos == "left"){eixo_x = canvas.width * 0.35;}
+		var eixo_y = canvas.height * 0.95;
+
+		// parte traseiro carro
+		pintar(cor.mycar, eixo_x, eixo_y);
+		pintar(cor.pneu, eixo_x + tam_pecas, eixo_y, tam_pecas, tam_pecas + 2);
+		pintar(cor.pneu, eixo_x - tam_pecas, eixo_y, tam_pecas, tam_pecas + 2);
+		//meio carro
+		pintar(cor.mycar, eixo_x, eixo_y - tam_pecas);
+		//bico do carro
+		pintar(cor.mycar, eixo_x, eixo_y - tam_pecas * 2);
+		pintar(cor.pneu, eixo_x + tam_pecas, eixo_y - tam_pecas * 2);
+		pintar(cor.pneu, eixo_x - tam_pecas, eixo_y - tam_pecas * 2);
+		pintar(cor.mycar, eixo_x, eixo_y - tam_pecas * 3);
+
+		mycar.bico = eixo_y - tam_pecas * 3;
+		mycar.le = eixo_x - tam_pecas;
+		mycar.ld = eixo_x + tam_pecas		
+	}
+
+
+	function pintarFaixaC(y){
+		for (var i = 0; i < tam_faixa; i++){
+			pintar(cor.faixac, centro_pista, i*tam_pecas+y);
+		}
+	}
+
+	
+
+	function pintarMato(){
+		for(var i = 0; i < quant_pecas; i+=10){
+			// mato direito
+			pintar(cor.mato, canvas.width * 0.07, i*tam_pecas, tam_pecas/2, tam_pecas/2);
+			pintar(cor.mato, canvas.width * 0.09, i*tam_pecas, tam_pecas/2, tam_pecas/2);
+			pintar(cor.mato, canvas.width * 0.08, i*tam_pecas-5, tam_pecas/2, tam_pecas/2);
+			pintar(cor.mato, canvas.width * 0.08, i*tam_pecas+5, tam_pecas/2, tam_pecas/2);
+			// mato esquerdo
+			pintar(cor.mato, canvas.width * 0.91, i*tam_pecas, tam_pecas/2, tam_pecas/2);
+			pintar(cor.mato, canvas.width * 0.89, i*tam_pecas, tam_pecas/2, tam_pecas/2);
+			pintar(cor.mato, canvas.width * 0.90, i*tam_pecas-5, tam_pecas/2, tam_pecas/2);
+			pintar(cor.mato, canvas.width * 0.90, i*tam_pecas+5, tam_pecas/2, tam_pecas/2);
+		}	
+	}
+
+	function pintarFaixasL(){
+		for(var i = 0; i< quant_pecas;i++){
+			pintar(cor.faixal, canvas.width * 0.2, i*tam_pecas); // faixa direita
+			pintar(cor.faixal, canvas.width * 0.8, i*tam_pecas); // faixa esquerda
+			pintar(cor.grama, (canvas.width * 0.8) + tam_pecas, i*tam_pecas, canvas.width * 0.2) // grama esqueda
+			pintar(cor.grama, 0, i*tam_pecas, canvas.width * 0.2) // grama direira - 20%
+			pintarMato();	
+		}
+	}
+
+	function pintarPista(){
+		pintar(cor.pista, canvas.width * 0.2 +tam_pecas, 0, canvas.width * 0.6, canvas.height)
+	}
+
+	function pintar(cor, pos_x, pos_y, t_pecax = tam_pecas, t_pecay = tam_pecas){
+		ctx.fillStyle = cor;
+		ctx.fillRect(pos_x, pos_y, t_pecax, t_pecay);
+	}
+
+	function escLado(tecla){
+		if (tecla.key == "ArrowLeft"){lado_car = "left";}
+		if (tecla.key == "ArrowRight"){lado_car = "right";}
+	}
+	
+</script>
+</body>
+</html>
